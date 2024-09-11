@@ -49,7 +49,10 @@ export default function FormsSection({ authStatus, captchaSolved }) {
     };
 
     try {
-      const response = await axios.post("/api/whatsapp/send-message", data);
+      const response = await axios.post(
+        "https://zap-api-61q3.onrender.com/api/whatsapp/send-message",
+        data
+      );
       setLoading(false);
 
       if (response.data.success) {

@@ -19,7 +19,7 @@ export default function HomePage() {
   const fetchQrCode = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/whatsapp/qr-code"
+        "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
       );
       setQrCode(response.data.qrCode);
     } catch (error) {
@@ -30,7 +30,7 @@ export default function HomePage() {
   const checkAuthStatus = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/whatsapp/status"
+        "https://zap-api-61q3.onrender.com/api/whatsapp/status"
       );
       setAuthStatus(response.data.isAuthenticated);
     } catch (error) {
