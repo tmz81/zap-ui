@@ -13,43 +13,53 @@ import axios from "axios";
 
 export default function HomePage() {
   const [qrCode, setQrCode] = React.useState("");
-  const [authStatus, setAuthStatus] = React.useState(null);
-  const [captchaSolved, setCaptchaSolved] = React.useState(false);
+const [authStatus, setAuthStatus] = React.useState(null);
+const [captchaSolved, setCaptchaSolved] = React.useState(false);
 
-  const fetchQrCode = async () => {
-    try {
-      const response = await axios.get(
-        "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
-      );
-      setQrCode(response.data.qrCode);
-    } catch (error) {
-      console.error("Erro ao buscar QR Code:", error);
+const fetchQrCode = async () => {
+  try {
+    const response = await axios.get(
+      "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
+    );
+    setQrCode(response.data.qrCode);
+  } catch (error) {
+    console.error("Erro ao buscar QR Code:", error);
+  }
+};
+
+const checkAuthStatus = async () => {
+  try {
+    const response = await axios.get(
+      "https://zap-api-61q3.onrender.com/api/whatsapp/status"
+    );
+    setAuthStatus(response.data.isAuthenticated);
+  } catch (error) {
+    console.error("Erro ao verificar autenticação:", error);
+  }
+};
+
+React.useEffect(() => {
+  const intervalFunction = async () => {
+    await checkAuthStatus();
+
+    if (!authStatus) {
+      fetchQrCode();
     }
   };
 
-  const checkAuthStatus = async () => {
-    try {
-      const response = await axios.get(
-        "https://zap-api-61q3.onrender.com/api/whatsapp/status"
-      );
-      setAuthStatus(response.data.isAuthenticated);
-    } catch (error) {
-      console.error("Erro ao verificar autenticação:", error);
-    }
+  intervalFunction();
+
+  const interval = setInterval(intervalFunction, 28000);
+
+  return () => {
+    clearInterval(interval);
   };
+}, [authStatus]);
 
-  React.useEffect(() => {
-    fetchQrCode();
-    const interval = setInterval(checkAuthStatus, 1000);
+const handleCaptchaChange = (event) => {
+  setCaptchaSolved(event.target.checked);
+};
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  const handleCaptchaChange = (event) => {
-    setCaptchaSolved(event.target.checked);
-  };
 
   return (
     <Container>
