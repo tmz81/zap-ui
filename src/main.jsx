@@ -4,14 +4,6 @@ import { createRoot } from "react-dom/client";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme({
-  palette: {
-    text: {
-      primary: "#FF7F0B",
-    },
-    background: {
-      default: "#121214",
-    },
-  },
   typography: {
     fontFamily: "Inter",
   },

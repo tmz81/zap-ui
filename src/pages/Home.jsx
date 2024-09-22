@@ -13,53 +13,52 @@ import axios from "axios";
 
 export default function HomePage() {
   const [qrCode, setQrCode] = React.useState("");
-const [authStatus, setAuthStatus] = React.useState(null);
-const [captchaSolved, setCaptchaSolved] = React.useState(false);
+  const [authStatus, setAuthStatus] = React.useState(null);
+  const [captchaSolved, setCaptchaSolved] = React.useState(false);
 
-const fetchQrCode = async () => {
-  try {
-    const response = await axios.get(
-      "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
-    );
-    setQrCode(response.data.qrCode);
-  } catch (error) {
-    console.error("Erro ao buscar QR Code:", error);
-  }
-};
-
-const checkAuthStatus = async () => {
-  try {
-    const response = await axios.get(
-      "https://zap-api-61q3.onrender.com/api/whatsapp/status"
-    );
-    setAuthStatus(response.data.isAuthenticated);
-  } catch (error) {
-    console.error("Erro ao verificar autenticação:", error);
-  }
-};
-
-React.useEffect(() => {
-  const intervalFunction = async () => {
-    await checkAuthStatus();
-
-    if (!authStatus) {
-      fetchQrCode();
+  const fetchQrCode = async () => {
+    try {
+      const response = await axios.get(
+        "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
+      );
+      setQrCode(response.data.qrCode);
+    } catch (error) {
+      console.error("Erro ao buscar QR Code:", error);
     }
   };
 
-  intervalFunction();
-
-  const interval = setInterval(intervalFunction, 28000);
-
-  return () => {
-    clearInterval(interval);
+  const checkAuthStatus = async () => {
+    try {
+      const response = await axios.get(
+        "https://zap-api-61q3.onrender.com/api/whatsapp/status"
+      );
+      setAuthStatus(response.data.isAuthenticated);
+    } catch (error) {
+      console.error("Erro ao verificar autenticação:", error);
+    }
   };
-}, [authStatus]);
 
-const handleCaptchaChange = (event) => {
-  setCaptchaSolved(event.target.checked);
-};
+  React.useEffect(() => {
+    const intervalFunction = async () => {
+      await checkAuthStatus();
 
+      if (!authStatus) {
+        fetchQrCode();
+      }
+    };
+
+    intervalFunction();
+
+    const interval = setInterval(intervalFunction, 28000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [authStatus]);
+
+  const handleCaptchaChange = (event) => {
+    setCaptchaSolved(event.target.checked);
+  };
 
   return (
     <Container>
@@ -86,9 +85,9 @@ const handleCaptchaChange = (event) => {
             <Typography variant="h6" gutterBottom pb={2}>
               Ao utilizar a ferramenta, é fundamental estar ciente de que tal
               prática pode resultar no bloqueio ou até mesmo na perda permanente
-              do número de telefone associado à sua conta. O WhatsApp possui
-              políticas rigorosas. Brinque com sabedoria, tenha limites, não
-              extrapole, use com moderação
+              do número de telefone associado à sua conta, pois o WhatsApp
+              possui políticas rigorosas. Brinque com sabedoria, tenha limites,
+              não extrapole.
             </Typography>
             <FormControlLabel
               style={{
@@ -121,12 +120,11 @@ const handleCaptchaChange = (event) => {
               <Box
                 sx={{
                   backgroundColor: "#fff",
-                  width: "48%",
-                  height: "84%",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: "8px",
+                  padding: '16px'
                 }}
               >
                 <QRCode value={qrCode} size={256} />
