@@ -9,10 +9,12 @@ import {
   Typography,
   Snackbar,
   Alert,
+  Grid,
 } from "@mui/material";
 
 export default function FormsSection({ authStatus, captchaSolved }) {
   const [number, setNumeroVitima] = useState("");
+  const [ddd, setDdd] = useState("");
   const [message, setMensagem] = useState("");
   const [repeatTimes, setQuantidade] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,11 @@ export default function FormsSection({ authStatus, captchaSolved }) {
     setNumeroVitima(rawValue);
   };
 
+  const handleNumeroDDD = (e) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+    setDdd(rawValue);
+  };
+
   const handleMensagemChange = (e) => {
     setMensagem(e.target.value);
   };
@@ -33,7 +40,7 @@ export default function FormsSection({ authStatus, captchaSolved }) {
   };
 
   const handleSubmit = async () => {
-    if (!number || !message) {
+    if (!ddd || !number || !message) {
       setResponseMessage("Por favor, preencha todos os campos.");
       setOpenSnackbar(true);
       return;
@@ -43,6 +50,7 @@ export default function FormsSection({ authStatus, captchaSolved }) {
     setResponseMessage("");
 
     const data = {
+      ddd,
       number,
       message,
       repeatTimes,
@@ -50,7 +58,7 @@ export default function FormsSection({ authStatus, captchaSolved }) {
 
     try {
       const response = await axios.post(
-        "https://zap-api-61q3.onrender.com/api/whatsapp/send-message",
+        "https://zap-api-61q3.onrender.com/send-message",
         data
       );
       setLoading(false);
@@ -86,43 +94,84 @@ export default function FormsSection({ authStatus, captchaSolved }) {
         mb: 2,
       }}
     >
-      <InputMask
-        style={{
-          color: "#fff",
-        }}
-        mask="9999-9999"
-        value={number}
-        onChange={handleNumeroVitimaChange}
-      >
-        {() => (
-          <TextField
-            label="Número (Sem o 9º Dígito)"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{
-              style: { color: "#000" },
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
+          <InputMask
+            style={{
+              color: "#fff",
             }}
-            InputProps={{
-              style: { color: "#000" },
-              sx: {
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#000",
+            mask="99"
+            value={ddd}
+            onChange={handleNumeroDDD}
+          >
+            {() => (
+              <TextField
+                label="DDD"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                InputLabelProps={{
+                  style: { color: "#000" },
+                }}
+                InputProps={{
+                  style: { color: "#000" },
+                  sx: {
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#000",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#000",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#000",
+                      },
+                    },
                   },
-                  "&:hover fieldset": {
-                    borderColor: "#000",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#000",
-                  },
-                },
-              },
+                }}
+              />
+            )}
+          </InputMask>
+        </Grid>
+        <Grid item xs={9}>
+          <InputMask
+            style={{
+              color: "#fff",
             }}
-          />
-        )}
-      </InputMask>
-
+            mask="9-9999-9999"
+            value={number}
+            onChange={handleNumeroVitimaChange}
+          >
+            {() => (
+              <TextField
+                label="Número"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                InputLabelProps={{
+                  style: { color: "#000" },
+                }}
+                InputProps={{
+                  style: { color: "#000" },
+                  sx: {
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#000",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#000",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#000",
+                      },
+                    },
+                  },
+                }}
+              />
+            )}
+          </InputMask>
+        </Grid>
+      </Grid>
       <TextField
         label="Mensagem"
         variant="outlined"
@@ -155,12 +204,8 @@ export default function FormsSection({ authStatus, captchaSolved }) {
       />
 
       <Box p={2} mt={2}>
-        <Typography
-          variant="h6"
-          gutterBottom
-          sx={{ color: "#000", fontWeight: 500 }}
-        >
-          Quantidade de disparos
+        <Typography gutterBottom sx={{ color: "#000", fontWeight: 500 }}>
+          Quantidade de mensagens enviadas
         </Typography>
         <Slider
           value={repeatTimes}
@@ -170,7 +215,7 @@ export default function FormsSection({ authStatus, captchaSolved }) {
           step={1}
           marks
           min={1}
-          max={999}
+          max={99}
           sx={{
             color: "#fff",
             "& .MuiSlider-thumb": {
@@ -201,7 +246,7 @@ export default function FormsSection({ authStatus, captchaSolved }) {
         disabled={!authStatus || !captchaSolved || loading}
         sx={{ marginTop: 2, height: 54 }}
       >
-        {loading ? "Enviando..." : "Disparar Mensagens"}
+        {loading ? "Enviando..." : "Enviar Mensagens"}
       </Button>
 
       <Snackbar

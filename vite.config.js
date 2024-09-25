@@ -1,13 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     open: true,
     proxy: {
-      '/api': 'http://localhost:3000',
+      '/socket.io': {
+        target: 'https://zap-api-61q3.onrender.com',
+        ws: true
+      },
+      '/api': {
+        target: 'https://zap-api-61q3.onrender.com',
+        changeOrigin: true
+      }
     }
   }
 })

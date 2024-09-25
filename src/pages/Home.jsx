@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import QRCode from "qrcode.react";
 import FormsSection from "./Forms";
+import { io } from "socket.io-client";
 import axios from "axios";
 
 export default function HomePage() {
@@ -16,22 +17,12 @@ export default function HomePage() {
   const [authStatus, setAuthStatus] = React.useState(null);
   const [captchaSolved, setCaptchaSolved] = React.useState(false);
 
-  const fetchQrCode = async () => {
-    try {
-      const response = await axios.get(
-        "https://zap-api-61q3.onrender.com/api/whatsapp/qr-code"
-      );
-      setQrCode(response.data.qrCode);
-    } catch (error) {
-      console.error("Erro ao buscar QR Code:", error);
-    }
-  };
+  const API_URL = "https://zap-api-61q3.onrender.com";
+  const socket = React.useRef(null);
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get(
-        "https://zap-api-61q3.onrender.com/api/whatsapp/status"
-      );
+      const response = await axios.get(`${API_URL}/status`);
       setAuthStatus(response.data.isAuthenticated);
     } catch (error) {
       console.error("Erro ao verificar autenticação:", error);
@@ -39,22 +30,39 @@ export default function HomePage() {
   };
 
   React.useEffect(() => {
-    const intervalFunction = async () => {
-      await checkAuthStatus();
+    socket.current = io(API_URL, {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
-      if (!authStatus) {
-        fetchQrCode();
-      }
+    const handleStatus = (status) => {
+      setAuthStatus(status.isAuthenticated);
     };
 
-    intervalFunction();
+    const handleQr = (qr) => {
+      setQrCode(qr);
+    };
 
-    const interval = setInterval(intervalFunction, 28000);
+    socket.current.on("status", handleStatus);
+    socket.current.on("qr", handleQr);
 
+    // Limpeza ao desmontar o componente
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [API_URL]); // Dependência do API_URL
+
+  React.useEffect(() => {
+    // Chama a função inicialmente e a cada 28 segundos
+    const interval = setInterval(() => {
+      checkAuthStatus();
+    }, 28000);
+
+    // Limpeza do intervalo
     return () => {
       clearInterval(interval);
     };
-  }, [authStatus]);
+  }, []);
 
   const handleCaptchaChange = (event) => {
     setCaptchaSolved(event.target.checked);
@@ -103,6 +111,11 @@ export default function HomePage() {
               }
               label="**Responsabilidade e Consciência**"
             />
+            <Typography variant="h6" gutterBottom>
+              Scanei o QRcode, informe o DDD, o Número e a Mensagens. Selecione
+              a quantidade de mensagens a ser enviadas e depois clique no botão
+              para enviar as mensagens.
+            </Typography>
           </Box>
         </Grid>
         <Grid
@@ -124,7 +137,7 @@ export default function HomePage() {
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: "8px",
-                  padding: '16px'
+                  padding: "16px",
                 }}
               >
                 <QRCode value={qrCode} size={256} />
